@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 
 
-st.set_page_config(page_title="Simple Line-by-Line Translator", layout="centered")
+st.set_page_config(page_title="Real-Time Translator", layout="centered")
 st.title("🌍 Line-by-Line Translator")
 
 
