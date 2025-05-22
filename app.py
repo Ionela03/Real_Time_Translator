@@ -2,8 +2,8 @@ import streamlit as st
 import requests
 
 
-st.set_page_config(page_title="Real-Time Translator", layout="centered")
-st.title("🌍 Real-Time Translator")
+st.set_page_config(page_title="Smart Translator", layout="centered")
+st.title("🌍 Smart Translator")
 
 
 languages = {
