@@ -3,7 +3,7 @@ import requests
 
 
 st.set_page_config(page_title="Real-Time Translator", layout="centered")
-st.title("🌍 Line-by-Line Translator")
+st.title("🌍 Real-Time Translator")
 
 
 languages = {
