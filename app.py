@@ -1,10 +1,12 @@
 import streamlit as st
 import requests
 
-st.set_page_config(page_title="Real-Time Translator with Azure", layout="centered")
-st.title("🌍 Real-Time Translator with Azure")
+# Configurare UI
+st.set_page_config(page_title="Simple Line-by-Line Translator", layout="centered")
+st.title("🌍 Line-by-Line Translator")
 
-language_options = {
+# Limbile disponibile
+languages = {
     "Detect Automatically 🌐": None,
     "English 🇬🇧": "en",
     "French 🇫🇷": "fr",
@@ -22,64 +24,107 @@ language_options = {
     "Hindi 🇮🇳": "hi"
 }
 
-# Fără "Detect Automatically" pentru Target
-target_languages = {k: v for k, v in language_options.items() if v is not None}
-
-
-text = st.text_area("Enter text to translate:", height=150)
+# UI elements
+uploaded_file = st.file_uploader("📄 Upload a .txt file (optional)", type=["txt"])
+text_input = st.text_area("✍️ Or type/paste text here", height=150)
 
 col1, col2 = st.columns(2)
 with col1:
-    source_lang = st.selectbox("Source language", list(language_options.keys()))
+    source_lang = st.selectbox("Source language", list(languages.keys()), index=0)
 with col2:
-    target_lang = st.selectbox("Target language", list(target_languages.keys()))
+    target_lang = st.selectbox("Target language", [k for k in languages if languages[k] is not None])
 
-source_code = language_options[source_lang]
-target_code = language_options[target_lang]
+source_code = languages[source_lang]
+target_code = languages[target_lang]
 
-if st.button("Translate"):
-    if not text:
-        st.warning("Please enter text to translate.")
-        st.stop()
+def get_text_content():
+    if uploaded_file:
+        return uploaded_file.read().decode("utf-8")
+    return text_input
 
-    source_code = language_options[source_lang]
-    target_code = target_languages[target_lang]
-
-    if source_code == target_code and source_code is not None:
-        st.warning("Source and target languages are the same.")
-        st.stop()
-
-    endpoint = st.secrets["AZURE_ENDPOINT"]
-    key = st.secrets["AZURE_KEY"]
-    region = st.secrets["AZURE_REGION"]
-
-
-    if source_code is None:
-        url = f"{endpoint}/translate?api-version=3.0&to={target_code}"
-    else:
-        url = f"{endpoint}/translate?api-version=3.0&from={source_code}&to={target_code}"
-
+def detect_language(text, key, region, endpoint):
+    url = f"{endpoint}/detect?api-version=3.0"
     headers = {
         "Ocp-Apim-Subscription-Key": key,
         "Ocp-Apim-Subscription-Region": region,
         "Content-type": "application/json"
     }
     body = [{"text": text}]
+    response = requests.post(url, headers=headers, json=body)
+    response.raise_for_status()
+    return response.json()[0]["language"]
 
-    with st.spinner("Translating..."):
+def translate_line(text, from_lang, to_lang, key, region, endpoint):
+    if not text.strip():
+        return ""
+    url = f"{endpoint}/translate?api-version=3.0"
+    if from_lang is not None:
+        url += f"&from={from_lang}"
+    url += f"&to={to_lang}"
+    headers = {
+        "Ocp-Apim-Subscription-Key": key,
+        "Ocp-Apim-Subscription-Region": region,
+        "Content-type": "application/json"
+    }
+    body = [{"text": text}]
+    response = requests.post(url, headers=headers, json=body)
+    response.raise_for_status()
+    return response.json()[0]["translations"][0]["text"]
+
+if st.button("Translate"):
+    content = get_text_content()
+
+    if not content.strip():
+        st.warning("Please provide text or upload a file.")
+        st.stop()
+
+    endpoint = st.secrets["AZURE_ENDPOINT"]
+    key = st.secrets["AZURE_KEY"]
+    region = st.secrets["AZURE_REGION"]
+
+    with st.spinner("🔄 Translating line by line..."):
         try:
-            response = requests.post(url, headers=headers, json=body)
-            response.raise_for_status()
-            result = response.json()[0]
-            translated_text = result["translations"][0]["text"]
-            st.success(f"Translation: {translated_text}")
+            detected_languages = set()
+            translated_lines = []
 
-            
-            if source_code is None:
-                detected_lang_code = result.get("detectedLanguage", {}).get("language")
-                reversed_langs = {v: k for k, v in language_options.items() if v is not None}
-                detected_lang_name = reversed_langs.get(detected_lang_code, detected_lang_code)
-                st.info(f"Detected source language: **{detected_lang_name}**")
+            for line in content.splitlines():
+                if not line.strip():
+                    translated_lines.append("")
+                    continue
+
+                # detectează mereu limba (chiar dacă userul a ales una)
+                detected_lang = detect_language(line, key, region, endpoint)
+                detected_languages.add(detected_lang)
+
+                # dacă userul a ales "Detect Automatically", folosește detectarea reală
+                if source_code is None:
+                    from_lang = detected_lang
+                else:
+                    from_lang = source_code
+
+                translated = translate_line(line, from_lang, target_code, key, region, endpoint)
+                translated_lines.append(translated)
+
+            # Dacă utilizatorul a ales o limbă fixă, dar textul conține mai multe limbi detectate
+            if source_code is not None and len(detected_languages) > 1:
+                st.warning(
+                    f"⚠️ Multiple languages detected in your text: {', '.join(sorted(detected_languages))}. "
+                    f"You selected '{source_lang}', but the system found more. "
+                    f"For better results, consider choosing 'Detect Automatically 🌐'."
+                )
+
+
+            final_text = "\n".join(translated_lines)
+
+            st.subheader("📄 Translation Result")
+            st.text_area("Result", final_text.strip(), height=300)
+
+            st.download_button(
+                label="💾 Download Translated File",
+                data=final_text.encode("utf-8"),
+                file_name="translated.txt",
+                mime="text/plain"
+            )
 
         except Exception as e:
-            st.error(f"Something went wrong: {e}")
+            st.error(f"Translation failed: {e}")
