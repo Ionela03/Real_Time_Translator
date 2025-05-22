@@ -1,4 +1,4 @@
-# 🌍 Smart Translator
+# 🌍 Real-Time Translator
 
 **Smart Translator** is a real-time, multilingual text translator powered by **Azure Cognitive Services** and built with **Streamlit**.
 
