@@ -28,14 +28,9 @@ languages = {
 uploaded_file = st.file_uploader("📄 Upload a .txt file (optional)", type=["txt"])
 text_input = st.text_area("✍️ Or type/paste text here", height=150)
 
-col1, col2 = st.columns(2)
-with col1:
-    source_lang = st.selectbox("Source language", list(languages.keys()), index=0)
-with col2:
-    target_lang = st.selectbox("Target language", [k for k in languages if languages[k] is not None])
-
-source_code = languages[source_lang]
+target_lang = st.selectbox("Target language", [k for k in languages if languages[k] is not None])
 target_code = languages[target_lang]
+
 
 def get_text_content():
     if uploaded_file:
@@ -97,21 +92,10 @@ if st.button("Translate"):
                 detected_languages.add(detected_lang)
 
                 
-                if source_code is None:
-                    from_lang = detected_lang
-                else:
-                    from_lang = source_code
+                from_lang = detected_lang
 
                 translated = translate_line(line, from_lang, target_code, key, region, endpoint)
                 translated_lines.append(translated)
-
-           
-            if source_code is not None and len(detected_languages) > 1:
-                st.warning(
-                    f"⚠️ Multiple languages detected in your text: {', '.join(sorted(detected_languages))}. "
-                    f"You selected '{source_lang}', but the system found more. "
-                    f"For better results, consider choosing 'Detect Automatically 🌐'."
-                )
 
 
             final_text = "\n".join(translated_lines)
