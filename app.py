@@ -1,11 +1,11 @@
 import streamlit as st
 import requests
 
-# Configurare UI
+
 st.set_page_config(page_title="Simple Line-by-Line Translator", layout="centered")
 st.title("🌍 Line-by-Line Translator")
 
-# Limbile disponibile
+
 languages = {
     "Detect Automatically 🌐": None,
     "English 🇬🇧": "en",
@@ -24,7 +24,7 @@ languages = {
     "Hindi 🇮🇳": "hi"
 }
 
-# UI elements
+
 uploaded_file = st.file_uploader("📄 Upload a .txt file (optional)", type=["txt"])
 text_input = st.text_area("✍️ Or type/paste text here", height=150)
 
@@ -92,11 +92,11 @@ if st.button("Translate"):
                     translated_lines.append("")
                     continue
 
-                # detectează mereu limba (chiar dacă userul a ales una)
+                
                 detected_lang = detect_language(line, key, region, endpoint)
                 detected_languages.add(detected_lang)
 
-                # dacă userul a ales "Detect Automatically", folosește detectarea reală
+                
                 if source_code is None:
                     from_lang = detected_lang
                 else:
@@ -105,7 +105,7 @@ if st.button("Translate"):
                 translated = translate_line(line, from_lang, target_code, key, region, endpoint)
                 translated_lines.append(translated)
 
-            # Dacă utilizatorul a ales o limbă fixă, dar textul conține mai multe limbi detectate
+           
             if source_code is not None and len(detected_languages) > 1:
                 st.warning(
                     f"⚠️ Multiple languages detected in your text: {', '.join(sorted(detected_languages))}. "
