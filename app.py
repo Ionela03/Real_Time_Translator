@@ -8,20 +8,20 @@ st.title("🌍 Smart Translator")
 
 languages = {
     "Detect Automatically 🌐": None,
-    "English 🇬🇧": "en",
-    "French 🇫🇷": "fr",
-    "German 🇩🇪": "de",
-    "Romanian 🇷🇴": "ro",
-    "Spanish 🇪🇸": "es",
-    "Italian 🇮🇹": "it",
-    "Portuguese 🇵🇹": "pt",
-    "Russian 🇷🇺": "ru",
-    "Chinese (Simplified) 🇨🇳": "zh-Hans",
-    "Japanese 🇯🇵": "ja",
-    "Korean 🇰🇷": "ko",
-    "Arabic 🇸🇦": "ar",
-    "Turkish 🇹🇷": "tr",
-    "Hindi 🇮🇳": "hi"
+    "English": "en",
+    "French": "fr",
+    "German": "de",
+    "Romanian": "ro",
+    "Spanish": "es",
+    "Italian": "it",
+    "Portuguese": "pt",
+    "Russian": "ru",
+    "Chinese (Simplified)": "zh-Hans",
+    "Japanese": "ja",
+    "Korean": "ko",
+    "Arabic": "ar",
+    "Turkish": "tr",
+    "Hindi": "hi"
 }
 
 
