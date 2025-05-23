@@ -11,7 +11,6 @@ It allows users to input or upload text in multiple languages and get instant tr
 - 📂 Upload `.txt` files or type/paste text directly
 - 🔍 Automatic per-line language detection
 - 🌐 Translate mixed-language content into a single target language
-- ⚠️ Warns when multiple source languages are detected and a fixed source is selected
 - 💬 Maintains line breaks, punctuation, and formatting
 - 💾 Download the translated content as a `.txt` file
 
